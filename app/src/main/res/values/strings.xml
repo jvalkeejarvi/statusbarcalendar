@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">StatusBarCalendar</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- Default preference values -->
+    <string name="default_updateinterval">15</string>
+    <string name="default_bulletsymbol">\u25cf</string>
+    <string name="default_clockstyle">H:mm</string>
+    <item type="integer" name="default_lookahead">48</item>
+    <item type="bool" name="default_emptynotification">true</item>
+    <item type="bool" name="default_coloredbullets">true</item>
+    <item type="bool" name="default_showendtime">false</item>
+    <item type="bool" name="default_showallday">true</item>
+    <item type="bool" name="default_startonboot">true</item>
+    <item type="bool" name="default_forcetop">false</item>
+
+    <string-array name="pref_calendar_list_default"></string-array>
+    <string-array name="pref_bullet_symbols">
+        <item>(none)</item>
+        <item>\u2022</item>
+        <item>\u25cf</item>
+        <item>\u258a</item>
+        <item>\u258d</item>
+    </string-array>
+    <string-array name="pref_bullet_symbols_values">
+        <item ></item>
+        <item>\u2022</item>
+        <item>\u25cf</item>
+        <item>\u258a</item>
+        <item>\u258d</item>
+    </string-array>
+    <string-array name="clock_style">
+        <item>5:00 PM</item>
+        <item>5:00</item>
+        <item>17:00</item>
+    </string-array>
+    <string-array name="clock_style_values">
+        <item>h:mm a</item>
+        <item>h:mm</item>
+        <item>H:mm</item>
+    </string-array>
+    
+    <string name="no_events">No upcoming events</string>
+    <string name="show">Show notification</string>
+    <string name="days">Days</string>
+    <string name="hours">Hours</string>
+    <string name="get_all">Use 0 0 to get all events</string>
+
+
+</resources>

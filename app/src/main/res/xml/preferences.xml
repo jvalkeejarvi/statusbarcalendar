@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <com.juusosoft.statusbarcalendar.CalendarListPreference
+        android:defaultValue="@array/pref_calendar_list_default"
+        android:key="list"
+        android:title="Calendars to display" />
+
+    <com.juusosoft.statusbarcalendar.TimePreference
+        android:defaultValue="@integer/default_lookahead"
+        android:key="lookahead"
+        android:layout="@layout/setting_layout"
+        android:title="Event search interval" />
+
+    <!--
+    <EditTextPreference
+        android:defaultValue="@string/default_updateinterval"
+        android:inputType="number"
+        android:key="updateinterval"
+        android:summary="Notifications update interval in minutes when device is in sleep"
+        android:title="Manual update interval" />
+    -->
+    
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_emptynotification"
+        android:key="emptynotification"
+        android:summary="Show &quot;No upcoming events&quot; notification when there are no events to show"
+        android:title="Notification when no events" />
+
+    <ListPreference
+        android:defaultValue="@string/default_bulletsymbol"
+        android:entries="@array/pref_bullet_symbols"
+        android:entryValues="@array/pref_bullet_symbols_values"
+        android:key="bulletsymbol"
+        android:title="Symbol before events" />
+    <ListPreference
+        android:defaultValue="@string/default_clockstyle"
+        android:entries="@array/clock_style"
+        android:entryValues="@array/clock_style_values"
+        android:key="clockstyle"
+        android:title="Clock style" />
+
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_coloredbullets"
+        android:key="coloredbullets"
+        android:summary="Bullets use calendar colors"
+        android:title="Colored bullets" />
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_showendtime"
+        android:key="showendtime"
+        android:title="Show event end time" />
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_showallday"
+        android:key="showallday"
+        android:title="Show all day events" />
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_startonboot"
+        android:key="startonboot"
+        android:title="Start on device boot" />
+    <CheckBoxPreference
+        android:defaultValue="@bool/default_forcetop"
+        android:key="forcetop"
+        android:summary="Forces notification to stay on top"
+        android:title="Force notification top" />
+
+</PreferenceScreen>

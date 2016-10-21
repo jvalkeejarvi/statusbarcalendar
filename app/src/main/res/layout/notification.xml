@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingBottom="0dp"
+    android:paddingLeft="8dp"
+    android:paddingRight="8dp"
+    android:paddingTop="0dp" >
+
+    <LinearLayout
+        android:id="@+id/row0"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row0bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row0title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row1"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row1bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row1title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row2"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row2bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row2title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row3"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row3bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row3title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row4"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row4bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row4title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row5"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row5bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row5title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row6"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row6bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row6title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row7"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row7bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row7title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row8"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row8bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row8title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/row9"
+        style="@style/RowLayout" >
+
+        <TextView
+            android:id="@+id/row9bullet"
+            style="@style/TextBullet" />
+
+        <TextView
+            android:id="@+id/row9title"
+            style="@style/TextTitle" />
+    </LinearLayout>
+
+</LinearLayout>
