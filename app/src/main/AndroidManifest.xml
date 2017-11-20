@@ -4,10 +4,6 @@
     android:versionCode="1"
     android:versionName="1.0" >
 
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="24" />
-
     <uses-permission android:name="android.permission.READ_CALENDAR" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
@@ -15,7 +11,11 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
-        android:theme="@android:style/Theme.DeviceDefault" >
+        android:theme="@style/Theme.AppCompat" >
+
+        <!-- Use android:theme="@android:style/Theme.DeviceDefault" to make app look nicer -->
+        <!-- Use android:theme="@style/Theme.AppCompat" to get snackBar to work -->
+
         <activity
             android:name="com.juusosoft.statusbarcalendar.MainActivity"
             android:label="@string/app_name" >

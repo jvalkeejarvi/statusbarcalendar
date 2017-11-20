@@ -153,9 +153,7 @@ public class NotificationService extends IntentService {
                     if (sharedPref.getBoolean("coloredbullets", getResources()
                             .getBoolean(R.bool.default_coloredbullets)))
                         bulletColor = 0xff000000 + event.getColor();
-                    String bulletSymbol = sharedPref.getString(
-                            "bulletsymbol",
-                            getResources().getString(
+                    String bulletSymbol = sharedPref.getString("bulletsymbol", getResources().getString(
                                     R.string.default_bulletsymbol));
                     //Set notification row text
                     StringBuilder eventText = new StringBuilder();
@@ -165,8 +163,7 @@ public class NotificationService extends IntentService {
                         if (sharedPref.getBoolean("showendtime", getResources()
                                 .getBoolean(R.bool.default_showendtime))) {
                             eventText.append("-");
-                            eventText.append(time.format(event.getEndCal()
-                                    .getTimeInMillis()));
+                            eventText.append(time.format(event.getEndCal().getTimeInMillis()));
                         }
                         eventText.append("  ");
                     }
@@ -200,6 +197,8 @@ public class NotificationService extends IntentService {
                 setRow(notificationSmall, rowsSmall[currentRowSmall][BULLET],
                         rowsSmall[currentRowSmall][TITLE], false, "", 0, "");
 
+            // Make sure that ended event is not shown by updating notification 2 seconds
+            // after event ends
             when = lastEventcal.getTimeInMillis()
                     - Calendar.getInstance().getTimeInMillis() + 2000;
 
@@ -240,9 +239,7 @@ public class NotificationService extends IntentService {
 
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-    }
+    public void onDestroy() { super.onDestroy(); }
 
     public static void cleanAlarmAndNotification (Context context) {
         Intent service = new Intent(context, NotificationService.class);
