@@ -89,31 +89,28 @@ public class NotificationService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-        AlarmManager alarm = (AlarmManager) getApplicationContext().getSystemService(
-                Context.ALARM_SERVICE);
-        Intent service = new Intent(getApplicationContext(),
-                NotificationService.class);
-        PendingIntent pi = PendingIntent.getService(getApplicationContext(),
-                MainActivity.alarmRequestCode, service, 0);
-        alarm.cancel(pi);
+
+        // Cancel alarms that are currently set when refreshing events
+        // New alarm will be set after events have been refreshed
+        cleanAlarm(getApplicationContext());
 
         NotificationManager mNotificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         RemoteViews notificationBig = new RemoteViews(getPackageName(),
                 R.layout.notification);
         RemoteViews notificationSmall = new RemoteViews(getPackageName(),
                 R.layout.notificationsmall);
-        RemoteViews notificationEmpty = new RemoteViews(getPackageName(),
-                R.layout.notificationempty);
 
-
-        ArrayList<Day> events = this.ReadEvents();
+        ArrayList<Day> events = this.readEvents();
         //Build notification
         Builder builder = new Notification.Builder(getApplicationContext());
         builder.setOngoing(true).setSmallIcon(android.R.color.transparent)
                 .setPriority(Notification.PRIORITY_LOW);
         if (sharedPref.getBoolean("forcetop",
-                getResources().getBoolean(R.bool.default_forcetop)))
+                getResources().getBoolean(R.bool.default_forcetop))) {
             builder.setPriority(Notification.PRIORITY_HIGH);
+        }
+
+        // Set notification click to open default calendar application
         Intent notificationClickIntent = new Intent(Intent.ACTION_VIEW);
         notificationClickIntent.setData(Uri
                 .parse("content://com.android.calendar/time"));
@@ -122,8 +119,11 @@ public class NotificationService extends IntentService {
         builder.setContentIntent(contentIntent);
         Notification notification = builder.build();
 
+        // New events are automatically polled with 15 minutes interval, if no calendar events
+        // triggering notification update are received
         int interval = Integer.parseInt(sharedPref.getString("updateinterval", getResources().getString(R.string.default_updateinterval)));
-        long when = interval * 60 * 1000;
+        long intervalMilliSeconds = interval * 60 * 1000;
+        long lastEventEndTime = Long.MAX_VALUE;
         Locale current = getResources().getConfiguration().locale;
         SimpleDateFormat date = new SimpleDateFormat("EEE d.M", current);
         SimpleDateFormat time = new SimpleDateFormat(sharedPref.getString("clockstyle", getResources().getString(R.string.default_clockstyle)),
@@ -131,6 +131,8 @@ public class NotificationService extends IntentService {
         if (events.size() > 0) {
             int currentRow = 0;
             int currentRowSmall = 0;
+            // Get end time of first returned event, calendar will be updated then to remove
+            // ended notification from event
             Calendar lastEventcal = events.get(0).getEvents().get(0)
                     .getEndCal();
             for (int j = 0; j < events.size()
@@ -189,7 +191,7 @@ public class NotificationService extends IntentService {
                     currentRow++;
                 }
             }
-            //Hide rest of the rows
+            //Hide rest of the rows that don't have events for them
             for (; currentRow < rowsBig.length; currentRow++)
                 setRow(notificationBig, rowsBig[currentRow][BULLET],
                         rowsBig[currentRow][TITLE], false, "", 0, "");
@@ -197,9 +199,9 @@ public class NotificationService extends IntentService {
                 setRow(notificationSmall, rowsSmall[currentRowSmall][BULLET],
                         rowsSmall[currentRowSmall][TITLE], false, "", 0, "");
 
-            // Make sure that ended event is not shown by updating notification 2 seconds
+            // Make sure that already ended event is not shown by updating notification 2 seconds
             // after event ends
-            when = lastEventcal.getTimeInMillis()
+            lastEventEndTime = lastEventcal.getTimeInMillis()
                     - Calendar.getInstance().getTimeInMillis() + 2000;
 
             notification.contentView = notificationSmall;
@@ -207,8 +209,12 @@ public class NotificationService extends IntentService {
             mNotificationManager.cancel(notificationID);
             mNotificationManager.notify(notificationID, notification);
         } else {
+            // Show empty notification if setting to show it is turned on
+            // Otherwise no notification will be shown
             if (sharedPref.getBoolean("emptynotification", getResources()
                     .getBoolean(R.bool.default_emptynotification))) {
+                RemoteViews notificationEmpty = new RemoteViews(getPackageName(),
+                        R.layout.notificationempty);
                 notification.contentView = notificationEmpty;
                 notification.bigContentView = notificationEmpty;
                 mNotificationManager.cancel(notificationID);
@@ -216,10 +222,9 @@ public class NotificationService extends IntentService {
             } else
                 mNotificationManager.cancel(notificationID);
         }
-        alarm.set(
-                AlarmManager.ELAPSED_REALTIME_WAKEUP,
-                SystemClock.elapsedRealtime()
-                        + Math.min(when, (interval * 60 * 1000)), pi);
+        // Set new alarm when notification will be checked
+        // Time will be defined interval or less if an event ends within that interval
+        setAlarm(getApplicationContext(), Math.min(lastEventEndTime, intervalMilliSeconds));
     }
 
 
@@ -256,6 +261,16 @@ public class NotificationService extends IntentService {
         alarm.cancel(pi);
     }
 
+    private static void setAlarm (Context context, Long when) {
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        Intent service = new Intent(context, NotificationService.class);
+        PendingIntent pi = PendingIntent.getService(context, MainActivity.alarmRequestCode,
+                service, 0);
+        alarm.set(
+                AlarmManager.ELAPSED_REALTIME_WAKEUP,
+                SystemClock.elapsedRealtime() + when, pi);
+    }
+
     private static void cleanNotification (Context context) {
         NotificationManager mNotificationManager = (NotificationManager)
                 context.getSystemService(Context.NOTIFICATION_SERVICE);
@@ -263,7 +278,7 @@ public class NotificationService extends IntentService {
     }
 
 
-    public ArrayList<Day> ReadEvents() {
+    public ArrayList<Day> readEvents() {
         final String[] EVENT_PROJECTION = new String[]{
                 Events.TITLE,
                 Instances.BEGIN,
@@ -290,8 +305,11 @@ public class NotificationService extends IntentService {
         long range = lookAhead * 60 * 60 * 1000;
         long end = start + range;
 
+        // Select events that have their start time before and end time after current time (ongoing)
+        // or that have their start time between current and search end time (ongoing all-day event)
         String selection = "((" + Instances.BEGIN + " < ? AND "
                 + Instances.END + " > ?) OR (" + Instances.BEGIN + " BETWEEN ? AND ? ))";
+        // Get all ongoing and future events, used when no lookahead has been defined
         String selection2 = "((" + Instances.BEGIN + " < ? AND "
                 + Instances.END + " > ?) OR (" + Instances.BEGIN + " > ? ))";
         String[] selectionArgs = {Double.toString(start),
@@ -308,22 +326,27 @@ public class NotificationService extends IntentService {
 
         if (ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_CALENDAR)
                 == PackageManager.PERMISSION_GRANTED) {
+            String selectionToUse;
+            String[] selectionArgsToUse;
             if (lookAhead != 0) {
-                ContentUris.appendId(eventsUriBuilder, start);
-                ContentUris.appendId(eventsUriBuilder, end);
-                Uri eventUri = eventsUriBuilder.build();
-                cur = resolver.query(eventUri, EVENT_PROJECTION, selection,
-                        selectionArgs, Instances.BEGIN + " ASC");
+                selectionToUse = selection;
+                selectionArgsToUse = selectionArgs;
             } else {
+                // If no lookahead has been defined, use 960 hours (40 days)
+                // Trying to get all events without any given end time will make the application get
+                // stuck
+                selectionToUse = selection2;
+                selectionArgsToUse = selectionArgs2;
                 range = 960 * 60 * 60 * 1000L;
                 end = start + range;
-                ContentUris.appendId(eventsUriBuilder, start);
-                ContentUris.appendId(eventsUriBuilder, end);
-                Uri eventUri = eventsUriBuilder.build();
-                cur = resolver.query(eventUri, EVENT_PROJECTION, selection2,
-                        selectionArgs2, Instances.BEGIN + " ASC");
             }
+            ContentUris.appendId(eventsUriBuilder, start);
+            ContentUris.appendId(eventsUriBuilder, end);
+            Uri eventUri = eventsUriBuilder.build();
+            cur = resolver.query(eventUri, EVENT_PROJECTION, selectionToUse,
+                    selectionArgsToUse, Instances.BEGIN + " ASC");
         } else {
+            // If no calendar permission has been granted, just return list without any events
             return days;
         }
 
@@ -354,23 +377,30 @@ public class NotificationService extends IntentService {
                 }
 
                 Day dayToCompare = days.get(days.size() - 1);
+                Day dayToAddEventTo;
 
+                // Check if current event is in the same day as previous event
+                // If it is not create new day object to list
                 if ((int) cal.get(Calendar.YEAR) != dayToCompare.getYear()
                         || (int) cal.get(Calendar.MONTH) != dayToCompare.getMonth()
                         || (int) cal.get(Calendar.DATE) != dayToCompare.getDay()) {
-                    days.add(new Day(cal.get(Calendar.YEAR), cal
-                            .get(Calendar.MONTH), cal.get(Calendar.DATE)));
+                    dayToAddEventTo = new Day(cal.get(Calendar.YEAR), cal
+                            .get(Calendar.MONTH), cal.get(Calendar.DATE));
+                    days.add(dayToAddEventTo);
+                } else {
+                    dayToAddEventTo = dayToCompare;
                 }
                 if (eventLocation == null)
                     eventLocation = "";
                 if (allDay == 1)
                     allDayBoolean = true;
-                days.get(days.size() - 1).addEvent(
+                dayToAddEventTo.addEvent(
                         new Event(cal, cal2, eventTitle + "  "
                                 + eventLocation, color, allDayBoolean));
                 int eventCount = 0;
-                for (int i = 0; i < days.size(); i++)
-                    eventCount += days.get(i).getEventCount();
+                for (Day day : days)
+                    eventCount += day.getEventCount();
+                // Stop handling events if no more events will fit into expanded notification
                 if (eventCount > rowsBig.length)
                     break;
             }
@@ -378,7 +408,6 @@ public class NotificationService extends IntentService {
         if (cur != null) cur.close();
         return days;
     }
-
 
     private class GetVisibleCalendars extends
             AsyncTask<ContentResolver, Void, Set<String>> {
